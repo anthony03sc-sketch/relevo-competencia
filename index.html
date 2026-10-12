@@ -88,20 +88,32 @@ if(mode==='share'){
  const bytes=XLSX.write(wb,{bookType:'xlsx',type:'array'});
  const file=new File([bytes],filename,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
  const whatsapp='https://wa.me/51902555709?text='+encodeURIComponent('Hola, adjunto el reporte Excel de Relevo de Competencia.');
+ const esIOS=/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
  const fallback=()=>{
    try { XLSX.writeFile(wb,filename); }
-   catch(e){ alert('No se pudo descargar el Excel.'); return; }
-   if(confirm('Excel descargado. ¿Abrir WhatsApp?')){
+   catch(e){ alert('No se pudo generar o descargar el Excel. Abre la página en Safari o Chrome e inténtalo nuevamente.'); return; }
+   if(esIOS){
+     alert('El Excel se ha generado. En iPhone, abre Archivos > Descargas, mantén presionado RELEVO_COMPETENCIA.xlsx, pulsa Compartir y elige WhatsApp. Selecciona el contacto y envía el archivo.');
+   } else if(confirm('Excel descargado. ¿Abrir WhatsApp?')){
      window.location.href=whatsapp;
    }
  };
- if(window.isSecureContext && navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
-   try {
-     return navigator.share({files:[file],title:'Relevo de Competencia'}).catch(err=>{
-       if(err && err.name==='AbortError')return;
-       fallback();
-     });
-   } catch(e){fallback();return;}
+ // En Safari/iOS el menú nativo de compartir es la forma de adjuntar un archivo.
+ // Una página web no puede escoger automáticamente el chat de destino con un adjunto.
+ if(window.isSecureContext && typeof navigator.share==='function'){
+   let compatible=true;
+   if(typeof navigator.canShare==='function'){
+     try { compatible=navigator.canShare({files:[file]}); } catch(e){ compatible=false; }
+   }
+   if(compatible){
+     try {
+       const datos=esIOS?{files:[file]}:{files:[file],title:'Relevo de Competencia'};
+       return navigator.share(datos).catch(err=>{
+         if(err && err.name==='AbortError')return;
+         fallback();
+       });
+     } catch(e){ fallback(); return; }
+   }
  }
  fallback();
  return;
