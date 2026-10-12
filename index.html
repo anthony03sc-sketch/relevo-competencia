@@ -87,7 +87,7 @@ function exportExcel(mode="download"){const r=Object.values(records);if(!r.lengt
 if(mode==='share'){
  const bytes=XLSX.write(wb,{bookType:'xlsx',type:'array'});
  const file=new File([bytes],filename,{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
- const whatsapp='https://wa.me/51902555709?text='+encodeURIComponent('Hola, adjunto el reporte Excel de Relevo de Competencia.');
+ const whatsapp='https://wa.me/51942866837?text='+encodeURIComponent('Hola, adjunto el reporte Excel de Relevo de Competencia.');
  const esIOS=/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
  const fallback=()=>{
    try { XLSX.writeFile(wb,filename); }
